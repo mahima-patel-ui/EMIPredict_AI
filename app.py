@@ -12,7 +12,7 @@ import json
 import gdown, os
 
 DATA_PATH = "sample_data/emi_prediction_dataset.csv"
-DATA_URL =  https://drive.google.com/file/d/1YoxwH1XWbe4Oo3ixPb_tYZBYGc-Vm1jc/view?usp=drive_link # replace with your file ID
+DATA_URL =  "https://drive.google.com/uc/id=1YoxwH1XWbe4Oo3ixPb_tYZBYGc-Vm1jc" # replace with your file ID
 
 os.makedirs("sample_data", exist_ok=True)
 
