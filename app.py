@@ -201,6 +201,14 @@ if 'df_input' in locals() and df_input is not None:
     st.dataframe(df_input)
 else:
     st.info("👆 Please provide input data and click 'Predict' to view results.")
+if st.button("Predict"):
+    # Create input DataFrame
+    df_input = pd.DataFrame(user_inputs, index=[0])
+    st.dataframe(df_input)
+
+    # Make predictions
+    prediction = model.predict(df_input)
+    st.success(f"Predicted EMI: ₹{prediction[0]:,.2f}")
 
 # Prediction button
 if st.button("🔮 Predict EMI Details"):
