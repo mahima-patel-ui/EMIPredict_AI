@@ -26,10 +26,10 @@ if not os.path.exists(DATA_PATH):
 import gdown
 
 drive_models = {
-    "XGBoost_classification.joblib": "https://drive.google.com/uc?id=1aBcDeFGhiJKlmn",
-    "XGBoost_regression.joblib": "https://drive.google.com/uc?id=1pQxYZtuOP56QrS",
-    "feature_names.json": "https://drive.google.com/uc?id=1qWeRTY7UiOP5Lm",  # optional if uploaded
-    "scaler.joblib": "https://drive.google.com/uc?id=1zXcVEFgHiJKlmn"
+    "XGBoost_classification.joblib": "https://drive.google.com/uc?id=1iQ18cb-saM34sCKGCLqP6jwbPCwplcgQ",
+    "XGBoost_regression.joblib": "https://drive.google.com/uc?id=1xMKo4-stFBLnshCv22oTf5p4Et94fDxR",
+    "feature_names.json": "https://drive.google.com/uc?id=1TZgnsgLQ16OpO5u84suFvQZ5Nqm1F_gk",  # optional if uploaded
+    "scaler.joblib": "https://drive.google.com/uc?id=1zBqFCocWbvwZX4RNkuhZYaswxYhI9e0b"
 }
 
 os.makedirs("artifacts/models", exist_ok=True)
