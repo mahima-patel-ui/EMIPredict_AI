@@ -196,6 +196,11 @@ elif mode == "Single Prediction":
    # Display input preview
 st.write("📄 Input Data Preview:")
 st.dataframe(df_input)
+# ✅ Ensure df_input is defined safely
+if 'df_input' in locals() and df_input is not None:
+    st.dataframe(df_input)
+else:
+    st.info("👆 Please provide input data and click 'Predict' to view results.")
 
 # Prediction button
 if st.button("🔮 Predict EMI Details"):
