@@ -7,6 +7,25 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import json
 
+# ------------------------------
+# 🔽 Auto-Download Models from Google Drive (if missing)
+# ------------------------------
+import gdown
+
+drive_models = {
+    "XGBoost_classification.joblib": "https://drive.google.com/uc?id=1aBcDeFGhiJKlmn",
+    "XGBoost_regression.joblib": "https://drive.google.com/uc?id=1pQxYZtuOP56QrS",
+    "feature_names.json": "https://drive.google.com/uc?id=1qWeRTY7UiOP5Lm",  # optional if uploaded
+    "scaler.joblib": "https://drive.google.com/uc?id=1zXcVEFgHiJKlmn"
+}
+
+os.makedirs("artifacts/models", exist_ok=True)
+
+for fname, url in drive_models.items():
+    dest = os.path.join("artifacts/models", fname)
+    if not os.path.exists(dest):
+        st.info(f"⬇️ Downloading {fname} from Google Drive...")
+        gdown.download(url, dest, quiet=False)
 
 
 
