@@ -168,22 +168,24 @@ elif mode == "Single Prediction":
 
     st.markdown("""
     Upload a **single applicant record** in CSV format (with the same features used in training),
-    or manually enter feature values below.
+    **or** manually enter feature values below 👇
     """)
 
-    uploaded = st.file_uploader("Upload single-row CSV file", type=["csv"])
+    uploaded = st.file_uploader("📤 Upload single-row CSV file", type=["csv"])
 
-    # Manual Input Form
+    # --- Manual Input Form ---
     with st.expander("📋 Or fill values manually"):
-        salary = st.number_input("Monthly Salary", min_value=0.0, value=50000.0, step=1000.0)
+        salary = st.number_input("Monthly Salary (₹)", min_value=0.0, value=50000.0, step=1000.0)
         credit_score = st.number_input("Credit Score", min_value=300, max_value=900, value=720)
-        current_emi = st.number_input("Current EMI Amount", min_value=0.0, value=5000.0, step=100.0)
-        other_expenses = st.number_input("Other Monthly Expenses", min_value=0.0, value=10000.0, step=100.0)
+        current_emi = st.number_input("Current EMI Amount (₹)", min_value=0.0, value=5000.0, step=100.0)
+        other_expenses = st.number_input("Other Monthly Expenses (₹)", min_value=0.0, value=10000.0, step=100.0)
         years_emp = st.number_input("Years of Employment", min_value=0.0, value=3.0, step=0.5)
         dependents = st.number_input("Number of Dependents", min_value=0, value=1, step=1)
 
+    # --- Prepare Input Data ---
     if uploaded is not None:
         df_input = pd.read_csv(uploaded)
+        st.success("✅ File uploaded successfully!")
     else:
         df_input = pd.DataFrame([{
             "monthly_salary": salary,
@@ -194,71 +196,54 @@ elif mode == "Single Prediction":
             "dependents": dependents
         }])
 
-   # Display input preview
-st.write("📄 Input Data Preview:")
-st.dataframe(df_input)
-# ------------------------------
-# 🔮 Display user input safely
-# ------------------------------
-if 'df_input' in locals():
-    st.subheader("🧾 Input Data Summary")
-    st.dataframe(df_input)
-else:
-    st.info("👆 Please enter your details and click 'Predict' to view the summary.")
-if st.button("Predict"):
-    # ✅ Create DataFrame from user inputs
-    df_input = pd.DataFrame(user_inputs, index=[0])
-    st.subheader("🧾 Input Data Summary")
+    # --- Display Input Preview ---
+    st.subheader("📄 Input Data Preview")
     st.dataframe(df_input)
 
-    # 🔮 Make predictions
-    pred = classification_model.predict(df_input)
-    st.success(f"🎯 Prediction: {pred[0]}")
+    # --- Prediction Button ---
+    if st.button("🔮 Predict EMI Details"):
+        try:
+            # Align features with training features
+            if 'feature_names' in locals() and len(feature_names) > 0:
+                for col in feature_names:
+                    if col not in df_input.columns:
+                        df_input[col] = 0
+                df_input = df_input[feature_names]
+            else:
+                st.warning("⚠️ Using available columns only (feature_names.json not loaded).")
 
+            # Select numeric columns only
+            X = df_input.select_dtypes(include=[np.number])
 
-# Prediction button
-if st.button("🔮 Predict EMI Details"):
-    try:
-        # Align input features with those used during training
-        if len(feature_names) > 0:
-            for col in feature_names:
-                if col not in df_input.columns:
-                    df_input[col] = 0  # Add missing columns with default 0
-            df_input = df_input[feature_names]  # Reorder columns
-        else:
-            st.warning("⚠️ Using available columns only (feature_names.json not loaded).")
+            # Apply scaling if available
+            if scaler is not None:
+                X_scaled = scaler.transform(X)
+            else:
+                X_scaled = X.values
 
-        X = df_input.select_dtypes(include=[np.number])
+            # Get models
+            clf = next((m for n, m in models.items() if "classification" in n.lower()), None)
+            reg = next((m for n, m in models.items() if "regression" in n.lower()), None)
 
-        # Scale features if scaler exists
-        if scaler is not None:
-            X_scaled = scaler.transform(X)
-        else:
-            X_scaled = X.values
+            # --- Classification Prediction ---
+            if clf is not None:
+                pred_class = clf.predict(X_scaled)[0]
+                st.success(f"✅ EMI Eligibility: **{pred_class}**")
+                try:
+                    prob = clf.predict_proba(X_scaled)[0]
+                    st.progress(int(prob.max() * 100))
+                    st.write(f"Confidence: {prob.max():.2%}")
+                except:
+                    pass
+            else:
+                st.warning("⚠️ Classification model not found.")
 
-        # Locate models
-        clf = next((m for n, m in models.items() if "classification" in n.lower()), None)
-        reg = next((m for n, m in models.items() if "regression" in n.lower()), None)
+            # --- Regression Prediction ---
+            if reg is not None:
+                pred_emi = reg.predict(X_scaled)[0]
+                st.success(f"💵 Predicted Maximum EMI: ₹{pred_emi:,.2f}")
+            else:
+                st.warning("⚠️ Regression model not found.")
 
-        # Classification prediction
-        if clf is not None:
-            pred_class = clf.predict(X_scaled)[0]
-            st.success(f"✅ Predicted EMI Eligibility: **{pred_class}**")
-            try:
-                prob = clf.predict_proba(X_scaled)[0]
-                st.progress(int(prob.max() * 100))
-                st.write(f"Confidence: {prob.max():.2%}")
-            except:
-                pass
-        else:
-            st.warning("⚠️ Classification model not found.")
-
-        # Regression prediction
-        if reg is not None:
-            pred_emi = reg.predict(X_scaled)[0]
-            st.success(f"💵 Predicted Maximum EMI: ₹{pred_emi:,.2f}")
-        else:
-            st.warning("⚠️ Regression model not found.")
-
-    except Exception as e:
-        st.error(f"❌ Prediction failed: {e}")
+        except Exception as e:
+            st.error(f"❌ Prediction failed: {e}")
