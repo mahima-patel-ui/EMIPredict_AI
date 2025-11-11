@@ -6,6 +6,7 @@ import os
 import matplotlib.pyplot as plt
 import seaborn as sns
 import json
+df_input=None
 # ------------------------------
 # 📥 Download dataset from Google Drive if missing
 # ------------------------------
@@ -196,19 +197,24 @@ elif mode == "Single Prediction":
    # Display input preview
 st.write("📄 Input Data Preview:")
 st.dataframe(df_input)
-# ✅ Ensure df_input is defined safely
-if 'df_input' in locals() and df_input is not None:
+# ------------------------------
+# 🔮 Display user input safely
+# ------------------------------
+if 'df_input' in locals():
+    st.subheader("🧾 Input Data Summary")
     st.dataframe(df_input)
 else:
-    st.info("👆 Please provide input data and click 'Predict' to view results.")
+    st.info("👆 Please enter your details and click 'Predict' to view the summary.")
 if st.button("Predict"):
-    # Create input DataFrame
+    # ✅ Create DataFrame from user inputs
     df_input = pd.DataFrame(user_inputs, index=[0])
+    st.subheader("🧾 Input Data Summary")
     st.dataframe(df_input)
 
-    # Make predictions
-    prediction = model.predict(df_input)
-    st.success(f"Predicted EMI: ₹{prediction[0]:,.2f}")
+    # 🔮 Make predictions
+    pred = classification_model.predict(df_input)
+    st.success(f"🎯 Prediction: {pred[0]}")
+
 
 # Prediction button
 if st.button("🔮 Predict EMI Details"):
